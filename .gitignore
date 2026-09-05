@@ -1,0 +1,4 @@
+.clang-format
+compile_commands.json
+external/
+build/
