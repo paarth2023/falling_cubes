@@ -2,4 +2,4 @@
 
 ## 6-9-26
 
-- [ ] add glm to the mix.
+- [X] add glm to the mix.

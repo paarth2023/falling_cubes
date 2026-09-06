@@ -17,7 +17,9 @@ target_include_directories(glad PUBLIC
     external/glad/include
 )
 
-# CHIP-8 executable
+# glm
+add_subdirectory(external/glm)
+
 add_executable(cubes
     src/main.cpp
 	src/stb_image.cpp
@@ -26,6 +28,7 @@ add_executable(cubes
 target_link_libraries(cubes PRIVATE
     glfw
     glad
+	glm
 )
 
 # OpenGL
