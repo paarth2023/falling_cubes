@@ -20,6 +20,7 @@ target_include_directories(glad PUBLIC
 # CHIP-8 executable
 add_executable(cubes
     src/main.cpp
+	src/stb_image.cpp
 )
 
 target_link_libraries(cubes PRIVATE
