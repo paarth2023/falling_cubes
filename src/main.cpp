@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "stb_image.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define null NULL
 
@@ -10,19 +13,22 @@ const int sHeight = 600;
 
 void framebuffer_callback(GLFWwindow *window, int width, int height);
 
-const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "layout (location = 1) in vec3 aColor;\n"
-                                 "layout (location = 2) in vec2 aTexCoord;\n"
-                                 "out vec3 ourColor;\n"
-                                 "out vec2 TexCoord;\n"
-                                 "uniform mat4 transform;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos, 1.0);\n"
-                                 "	ourColor = aColor;\n"
-                                 "	TexCoord = aTexCoord;\n"
-                                 "}\0";
+enum format { rgb = GL_RGB, rgba = GL_RGBA };
+
+const char *vertexShaderSource =
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "layout (location = 2) in vec2 aTexCoord;\n"
+    "out vec3 ourColor;\n"
+    "out vec2 TexCoord;\n"
+    "uniform mat4 transform;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = transform * vec4(aPos, 1.0);\n"
+    "	ourColor = aColor;\n"
+    "	TexCoord = aTexCoord;\n"
+    "}\0";
 
 const char *fragmentShaderSource =
     "#version 330 core\n"
@@ -91,9 +97,14 @@ int main()
 
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
-    unsigned char *data = stbi_load("resources/solid_color_512x512.png", &width,
-                                    &height, &nrChannels, 0);
+    unsigned char *data =
+        stbi_load("resources/container.jpg", &width, &height, &nrChannels, 0);
     std::cout << nrChannels << std::endl;
+    format setting;
+    if (nrChannels == 3)
+        setting = rgb;
+    else if (nrChannels == 4)
+        setting = rgba;
 
     GLuint vbo, vao, ebo, texture1, texture2;
     glGenBuffers(1, &vbo);
@@ -111,7 +122,7 @@ int main()
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+        glTexImage2D(GL_TEXTURE_2D, 0, setting, width, height, 0, setting,
                      GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
@@ -119,8 +130,12 @@ int main()
     }
     stbi_image_free(data);
 
-    data = stbi_load("resources/solid_color_512x512.png", &width, &height,
-                     &nrChannels, 0);
+    data =
+        stbi_load("resources/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (nrChannels == 4)
+        setting = rgba;
+    else if (nrChannels == 3)
+        setting = rgba;
     glBindTexture(GL_TEXTURE_2D, texture2);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -128,7 +143,7 @@ int main()
                     GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+        glTexImage2D(GL_TEXTURE_2D, 0, setting, width, height, 0, setting,
                      GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
@@ -155,13 +170,20 @@ int main()
     glUniform1i(glGetUniformLocation(shaderprogram, "texture1"), 0);
     glUniform1i(glGetUniformLocation(shaderprogram, "texture2"), 1);
 
+    GLuint transformLoc = glGetUniformLocation(shaderprogram, "transform");
+
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.3f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
         glUseProgram(shaderprogram);
         glBindVertexArray(vao);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
