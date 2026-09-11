@@ -11,6 +11,10 @@
 const int sWidth = 1024;
 const int sHeight = 768;
 
+const float gravity = 9.8f;
+const glm::vec3 initVeloctiy = glm::vec3(0.0f, 0.002f, 0.0f);
+const glm::vec3 initPosition = glm::vec3(0.5f, 0.8f, -0.4f);
+
 void framebuffer_callback(GLFWwindow *window, int width, int height);
 
 enum format { rgb = GL_RGB, rgba = GL_RGBA };
@@ -40,6 +44,21 @@ const char *fragmentShaderSource =
     "	FragColor = mix(texture(texture1, TexCoord), texture(texture2, "
     "TexCoord), 0.2);\n"
     "}\n\0";
+
+glm::vec3 updatePosition(glm::vec3 position, float currTime, glm::mat4 view,
+                         glm::mat4 projection)
+{
+    float y = position.y - 0.5f * gravity * currTime * currTime;
+    glm::vec3 temp = glm::vec3(position.x, y, position.z);
+    glm::vec4 clipSpace = projection * view * glm::vec4(temp, 1.0f);
+    glm::vec3 ndc = glm::vec3(clipSpace) / clipSpace.w;
+    bool isVisible = (ndc.x >= -1.0f && ndc.x <= 1.0f) &&
+                     (ndc.y >= -1.0f && ndc.y <= 1.0f) &&
+                     (ndc.z >= -1.0f && ndc.z <= 1.0f);
+    if (!isVisible)
+        return initPosition;
+    return temp;
+}
 
 int main()
 {
@@ -187,7 +206,8 @@ int main()
     float rotationAngle = 0.0f;
     float rotationSpeed = 90.0f;
 
-    glm::vec3 position = glm::vec3(0.5f, 0.3f, -0.75f);
+    glm::vec3 position = initPosition;
+    glm::vec3 velocity = glm::vec3(0.0f, 0.002f, 0.0f);
 
     while (!glfwWindowShouldClose(window)) {
         glEnable(GL_DEPTH_TEST);
@@ -199,19 +219,20 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUseProgram(shaderprogram);
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        float currTime = glfwGetTime();
-        float deltaTime = currTime - prevTime;
-        prevTime = currTime;
-        rotationAngle += rotationSpeed * deltaTime;
-        model = glm::rotate(model, glm::radians(rotationAngle),
-                            glm::vec3(0.5f, 1.0f, 0.0f));
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glm::mat4 projection;
         projection = glm::perspective(
             glm::radians(45.0f), (float)sWidth / (float)sHeight, 0.1f, 100.0f);
+        glm::mat4 model = glm::mat4(1.0f);
+        float currTime = glfwGetTime();
+        float deltaTime = currTime - prevTime;
+        prevTime = currTime;
+        rotationAngle += rotationSpeed * deltaTime;
+        position = updatePosition(position, 5.0f * deltaTime, view, projection);
+        model = glm::translate(model, position);
+        model = glm::rotate(model, glm::radians(rotationAngle),
+                            glm::vec3(0.5f, 1.0f, 0.0f));
 
         GLint modelLoc = glGetUniformLocation(shaderprogram, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));

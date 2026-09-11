@@ -10,4 +10,8 @@
 
 ## 11-9-26
 
-- [ ] Make 1 falling cube
+- [X] Make 1 falling cube
+
+## 12-9-26
+
+- [ ] Find a way for seemless transition in the animation
