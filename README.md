@@ -4,4 +4,4 @@ This project will cover creating a simulation of cubes falling randomly in openg
 
 # Demo of 1 falling cube
 
-[Demo](https://github.com/paarth2023/falling_cubes/blob/main/resources/recording.mp4)
+![Demo](https://github.com/paarth2023/falling_cubes/blob/main/resources/recording.mp4)
