@@ -8,8 +8,8 @@
 
 #define null NULL
 
-const int sWidth = 800;
-const int sHeight = 600;
+const int sWidth = 1024;
+const int sHeight = 768;
 
 void framebuffer_callback(GLFWwindow *window, int width, int height);
 
@@ -82,12 +82,29 @@ int main()
     glDeleteShader(fragmentshader);
 
     float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top right
-        0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-        -0.5f, 0.5f,  0.0f, 0.0f, 1.0f  // top left
-    };
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+
+        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
     unsigned int indices[] = {
         // note that we start from 0!
         0, 1, 3, // first triangle
@@ -166,7 +183,15 @@ int main()
     glUniform1i(glGetUniformLocation(shaderprogram, "texture1"), 0);
     glUniform1i(glGetUniformLocation(shaderprogram, "texture2"), 1);
 
+    float prevTime = glfwGetTime();
+    float rotationAngle = 0.0f;
+    float rotationSpeed = 90.0f;
+
+    glm::vec3 position = glm::vec3(0.5f, 0.3f, -0.75f);
+
     while (!glfwWindowShouldClose(window)) {
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
@@ -175,8 +200,13 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUseProgram(shaderprogram);
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, glm::radians(-55.0f),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::translate(model, position);
+        float currTime = glfwGetTime();
+        float deltaTime = currTime - prevTime;
+        prevTime = currTime;
+        rotationAngle += rotationSpeed * deltaTime;
+        model = glm::rotate(model, glm::radians(rotationAngle),
+                            glm::vec3(0.5f, 1.0f, 0.0f));
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glm::mat4 projection;
@@ -191,8 +221,8 @@ int main()
         GLint viewLoc = glGetUniformLocation(shaderprogram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glBindVertexArray(vao);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
