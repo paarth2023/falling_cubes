@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "shader.h"
 
 #define null NULL
 
@@ -80,25 +81,16 @@ int main()
     }
     glfwSetFramebufferSizeCallback(window, framebuffer_callback);
 
-    GLuint vertexshader;
-    vertexshader = glCreateShader(GL_VERTEX_SHADER);
+    Shader shader;
+    std::string vertexSource = "resources/vertexshader";
+    shader.setVertexSource(vertexSource);
+    shader.compileVertexShader();
 
-    glShaderSource(vertexshader, 1, &vertexShaderSource, null);
-    glCompileShader(vertexshader);
+    std::string fragmentSource = "resources/fragmentshader";
+    shader.setFragmentSource(fragmentSource);
+    shader.compileFragmentShader();
 
-    GLuint fragmentshader;
-    fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentshader, 1, &fragmentShaderSource, null);
-    glCompileShader(fragmentshader);
-
-    GLuint shaderprogram;
-    shaderprogram = glCreateProgram();
-    glAttachShader(shaderprogram, vertexshader);
-    glAttachShader(shaderprogram, fragmentshader);
-    glLinkProgram(shaderprogram);
-
-    glDeleteShader(vertexshader);
-    glDeleteShader(fragmentshader);
+    shader.linkShaderProgram();
 
     float vertices[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
@@ -198,9 +190,9 @@ int main()
                           (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glUseProgram(shaderprogram);
-    glUniform1i(glGetUniformLocation(shaderprogram, "texture1"), 0);
-    glUniform1i(glGetUniformLocation(shaderprogram, "texture2"), 1);
+    shader.use();
+    shader.setInt("texture1", 0);
+    shader.setInt("texture2", 1);
 
     float prevTime = glfwGetTime();
     float rotationAngle = 0.0f;
@@ -218,7 +210,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
-        glUseProgram(shaderprogram);
+        shader.use();
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
         glm::mat4 projection;
@@ -234,13 +226,9 @@ int main()
         model = glm::rotate(model, glm::radians(rotationAngle),
                             glm::vec3(0.5f, 1.0f, 0.0f));
 
-        GLint modelLoc = glGetUniformLocation(shaderprogram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        GLint projectionLoc = glGetUniformLocation(shaderprogram, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-                           glm::value_ptr(projection));
-        GLint viewLoc = glGetUniformLocation(shaderprogram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        shader.setMatrix4fv("model", glm::value_ptr(model));
+        shader.setMatrix4fv("view", glm::value_ptr(view));
+        shader.setMatrix4fv("projection", glm::value_ptr(projection));
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

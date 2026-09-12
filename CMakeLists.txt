@@ -23,6 +23,8 @@ add_subdirectory(external/glm)
 add_executable(cubes
     src/main.cpp
 	src/stb_image.cpp
+	src/shader.h
+	src/shader.cpp
 )
 
 target_link_libraries(cubes PRIVATE

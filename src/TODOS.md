@@ -15,3 +15,8 @@
 ## 12-9-26
 
 - [ ] Find a way for seemless transition in the animation
+- [ ] Create a render for this
+
+## 13-9-26
+
+- [ ] Fix the faulty shader class
