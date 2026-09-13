@@ -25,6 +25,8 @@ add_executable(cubes
 	src/stb_image.cpp
 	src/shader.h
 	src/shader.cpp
+	src/error_reporting.h
+	src/error_reporting.cpp
 )
 
 target_link_libraries(cubes PRIVATE

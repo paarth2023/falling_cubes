@@ -1,13 +1,14 @@
 #include "shader.h"
 #include <fstream>
 
-Shader::Shader() {}
+Shader::Shader() { ID = glCreateProgram(); }
 
 Shader::Shader(std::string &vertexPath, std::string &fragmentPath)
 {
+    ID = glCreateProgram();
     std::ifstream vertexFile(vertexPath);
     vertexFile.seekg(0, vertexFile.end);
-    int vertexSize = vertexFile.tellg();
+    size_t vertexSize = vertexFile.tellg();
     vertexFile.seekg(0, vertexFile.beg);
 
     vertexShaderSource = new char[vertexSize];
@@ -15,7 +16,8 @@ Shader::Shader(std::string &vertexPath, std::string &fragmentPath)
 
     std::ifstream fragmentFile(fragmentPath);
     fragmentFile.seekg(0, fragmentFile.end);
-    int fragmentSize = fragmentFile.tellg();
+    size_t fragmentSize = fragmentFile.tellg();
+    std::cout << "size of the file is " << fragmentSize << std::endl;
     fragmentFile.seekg(0, fragmentFile.beg);
 
     fragmentShaderSource = new char[fragmentSize];
@@ -26,8 +28,9 @@ void Shader::setVertexSource(std::string &vertexPath)
 {
     std::ifstream vertexFile(vertexPath);
     vertexFile.seekg(0, vertexFile.end);
-    int vertexSize = vertexFile.tellg();
+    size_t vertexSize = vertexFile.tellg();
     vertexFile.seekg(0, vertexFile.beg);
+    std::cout << "size of the file is " << vertexSize << std::endl;
 
     vertexShaderSource = new char[vertexSize];
     vertexFile.read(vertexShaderSource, vertexSize);
@@ -37,8 +40,9 @@ void Shader::setFragmentSource(std::string &fragmentPath)
 {
     std::ifstream fragmentFile(fragmentPath);
     fragmentFile.seekg(0, fragmentFile.end);
-    int fragmentSize = fragmentFile.tellg();
+    size_t fragmentSize = fragmentFile.tellg();
     fragmentFile.seekg(0, fragmentFile.beg);
+    std::cout << "size of the file is " << fragmentSize << std::endl;
 
     fragmentShaderSource = new char[fragmentSize];
     fragmentFile.read(fragmentShaderSource, fragmentSize);
@@ -60,7 +64,6 @@ void Shader::compileFragmentShader()
 
 void Shader::linkShaderProgram()
 {
-    ID = glCreateProgram();
     glAttachShader(ID, vertexShaderID);
     glAttachShader(ID, fragmentShaderID);
     glLinkProgram(ID);

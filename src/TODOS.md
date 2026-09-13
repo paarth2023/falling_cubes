@@ -20,3 +20,4 @@
 ## 13-9-26
 
 - [ ] Fix the faulty shader class
+- [X] Integrate Error debugging

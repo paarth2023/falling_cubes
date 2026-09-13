@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include "error_reporting.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "stb_image.h"
@@ -20,32 +21,6 @@ void framebuffer_callback(GLFWwindow *window, int width, int height);
 
 enum format { rgb = GL_RGB, rgba = GL_RGBA };
 
-const char *vertexShaderSource =
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "layout (location = 1) in vec2 aTexCoord;\n"
-    "out vec2 TexCoord;\n"
-    "uniform mat4 model;\n"
-    "uniform mat4 view;\n"
-    "uniform mat4 projection;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-    "	TexCoord = aTexCoord;\n"
-    "}\0";
-
-const char *fragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec3 ourColor;\n"
-    "in vec2 TexCoord;\n"
-    "uniform sampler2D texture1;\n"
-    "uniform sampler2D texture2;\n"
-    "void main(){\n"
-    "	FragColor = mix(texture(texture1, TexCoord), texture(texture2, "
-    "TexCoord), 0.2);\n"
-    "}\n\0";
-
 glm::vec3 updatePosition(glm::vec3 position, float currTime, glm::mat4 view,
                          glm::mat4 projection)
 {
@@ -64,6 +39,7 @@ glm::vec3 updatePosition(glm::vec3 position, float currTime, glm::mat4 view,
 int main()
 {
     glfwInit();
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     std::cout << "Hello world" << std::endl;
@@ -81,12 +57,18 @@ int main()
     }
     glfwSetFramebufferSizeCallback(window, framebuffer_callback);
 
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        enableErrorReporting();
+    }
+
     Shader shader;
-    std::string vertexSource = "resources/vertexshader";
+    std::string vertexSource = "resources/vertexshader.glsl";
     shader.setVertexSource(vertexSource);
     shader.compileVertexShader();
 
-    std::string fragmentSource = "resources/fragmentshader";
+    std::string fragmentSource = "resources/fragmentshader.glsl";
     shader.setFragmentSource(fragmentSource);
     shader.compileFragmentShader();
 
