@@ -63,16 +63,13 @@ int main()
         enableErrorReporting();
     }
 
-    Shader shader;
-    std::string vertexSource = "resources/vertexshader.glsl";
-    shader.setVertexSource(vertexSource);
-    shader.compileVertexShader();
-
-    std::string fragmentSource = "resources/fragmentshader.glsl";
-    shader.setFragmentSource(fragmentSource);
-    shader.compileFragmentShader();
-
-    shader.linkShaderProgram();
+    std::filesystem::path vertexShader(
+        "/home/paarthmahadik/Documents/recreation/falling_cubes/resources/"
+        "vertexshader.glsl");
+    std::filesystem::path fragmentShader(
+        "/home/paarthmahadik/Documents/recreation/falling_cubes/resources/"
+        "fragmentshader.glsl");
+    Shader shader(vertexShader, fragmentShader);
 
     float vertices[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
@@ -208,9 +205,9 @@ int main()
         model = glm::rotate(model, glm::radians(rotationAngle),
                             glm::vec3(0.5f, 1.0f, 0.0f));
 
-        shader.setMatrix4fv("model", glm::value_ptr(model));
-        shader.setMatrix4fv("view", glm::value_ptr(view));
-        shader.setMatrix4fv("projection", glm::value_ptr(projection));
+        shader.setMatrix("model", model);
+        shader.setMatrix("view", view);
+        shader.setMatrix("projection", projection);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

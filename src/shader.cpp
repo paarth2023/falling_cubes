@@ -1,103 +1,74 @@
 #include "shader.h"
 #include <fstream>
+#include <iostream>
 
-Shader::Shader() { ID = glCreateProgram(); }
+#include <glad/glad.h>
 
-Shader::Shader(std::string &vertexPath, std::string &fragmentPath)
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+Shader::Shader(std::filesystem::path &vertexShader,
+               std::filesystem::path &fragmentShader)
 {
-    ID = glCreateProgram();
-    std::ifstream vertexFile(vertexPath);
+    std::cout << vertexShader.string();
+    std::ifstream vertexFile(vertexShader.string());
     vertexFile.seekg(0, vertexFile.end);
-    size_t vertexSize = vertexFile.tellg();
+    int vertexSize = vertexFile.tellg();
     vertexFile.seekg(0, vertexFile.beg);
-
-    vertexShaderSource = new char[vertexSize];
+    char *vertexShaderSource = new char[vertexSize + 1];
     vertexFile.read(vertexShaderSource, vertexSize);
+    vertexShaderSource[vertexSize] = 0;
 
-    std::ifstream fragmentFile(fragmentPath);
+    std::ifstream fragmentFile(fragmentShader.string());
     fragmentFile.seekg(0, fragmentFile.end);
-    size_t fragmentSize = fragmentFile.tellg();
-    std::cout << "size of the file is " << fragmentSize << std::endl;
+    int fragmentSize = fragmentFile.tellg();
     fragmentFile.seekg(0, fragmentFile.beg);
-
-    fragmentShaderSource = new char[fragmentSize];
+    char *fragmentShaderSource = new char[fragmentSize + 1];
     fragmentFile.read(fragmentShaderSource, fragmentSize);
+    fragmentShaderSource[fragmentSize] = 0;
+
+    unsigned int vertex;
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertex);
+    delete[] vertexShaderSource;
+
+    unsigned int fragment;
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragment);
+    delete[] fragmentShaderSource;
+
+    m_id = glCreateProgram();
+    glAttachShader(m_id, vertex);
+    glAttachShader(m_id, fragment);
+    glLinkProgram(m_id);
+
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 }
 
-void Shader::setVertexSource(std::string &vertexPath)
-{
-    std::ifstream vertexFile(vertexPath);
-    vertexFile.seekg(0, vertexFile.end);
-    size_t vertexSize = vertexFile.tellg();
-    vertexFile.seekg(0, vertexFile.beg);
-    std::cout << "size of the file is " << vertexSize << std::endl;
+Shader::~Shader() { glDeleteProgram(m_id); }
 
-    vertexShaderSource = new char[vertexSize];
-    vertexFile.read(vertexShaderSource, vertexSize);
+void Shader::use() { glUseProgram(m_id); }
+
+void Shader::setInt(const std::string &location, int value)
+{
+    glUniform1i(glGetUniformLocation(m_id, location.c_str()), value);
 }
 
-void Shader::setFragmentSource(std::string &fragmentPath)
+void Shader::setFloat(const std::string &location, float value)
 {
-    std::ifstream fragmentFile(fragmentPath);
-    fragmentFile.seekg(0, fragmentFile.end);
-    size_t fragmentSize = fragmentFile.tellg();
-    fragmentFile.seekg(0, fragmentFile.beg);
-    std::cout << "size of the file is " << fragmentSize << std::endl;
-
-    fragmentShaderSource = new char[fragmentSize];
-    fragmentFile.read(fragmentShaderSource, fragmentSize);
+    glUniform1f(glGetUniformLocation(m_id, location.c_str()), value);
 }
 
-void Shader::compileVertexShader()
+void Shader::setBool(const std::string &location, int value)
 {
-    vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShaderID, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShaderID);
+    glUniform1f(glGetUniformLocation(m_id, location.c_str()), value);
 }
 
-void Shader::compileFragmentShader()
+void Shader::setMatrix(const std::string &location, glm::mat4 &mat)
 {
-    fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShaderID, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShaderID);
-}
-
-void Shader::linkShaderProgram()
-{
-    glAttachShader(ID, vertexShaderID);
-    glAttachShader(ID, fragmentShaderID);
-    glLinkProgram(ID);
-}
-
-void Shader::use() { glUseProgram(ID); }
-
-void Shader::setInt(const GLchar *target, int val)
-{
-    GLint location = glGetUniformLocation(ID, target);
-    glUniform1i(location, val);
-}
-
-void Shader::setFloat(const GLchar *target, float val)
-{
-    GLint location = glGetUniformLocation(ID, target);
-    glUniform1f(location, val);
-}
-
-void Shader::setBool(const GLchar *target, bool val)
-{
-    GLint location = glGetUniformLocation(ID, target);
-    glUniform1i(location, val);
-}
-
-void Shader::setMatrix4fv(const GLchar *target, GLfloat *val)
-{
-    GLint location = glGetUniformLocation(ID, target);
-    glUniformMatrix4fv(location, 1, GL_FALSE, val);
-}
-
-Shader::~Shader()
-{
-    glDeleteShader(vertexShaderID);
-    glDeleteShader(fragmentShaderID);
-    glDeleteProgram(ID);
+    glUniformMatrix4fv(glGetUniformLocation(m_id, location.c_str()), 1,
+                       GL_FALSE, glm::value_ptr(mat));
 }

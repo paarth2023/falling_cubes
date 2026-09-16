@@ -1,31 +1,29 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <filesystem>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
 
 class Shader {
-    char *vertexShaderSource;
-    char *fragmentShaderSource;
-    GLuint ID;
-    GLuint vertexShaderID;
-    GLuint fragmentShaderID;
+    unsigned int m_id;
 
   public:
-    Shader();
-    Shader(std::string &vertexPath, std::string &fragmentPath);
-    void setVertexSource(std::string &vertexPath);
-    void setFragmentSource(std::string &fragmentPath);
-    void compileVertexShader();
-    void compileFragmentShader();
-    void linkShaderProgram();
-    void use();
-    void setInt(const GLchar *target, int val);
-    void setFloat(const GLchar *target, float val);
-    void setBool(const GLchar *target, bool val);
-    void setMatrix4fv(const GLchar *target, GLfloat *val);
+    Shader(std::filesystem::path &vertexShader,
+           std::filesystem::path &fragmentShader);
+    // copy constructor
+    Shader(Shader &) = delete;
+    // move constructor
+    Shader(Shader &&) = delete;
+    // copy assignment
+    Shader &operator=(Shader &) = delete;
+    // move assignment
+    Shader &operator=(Shader &&) = delete;
+    // destructor
     ~Shader();
+
+    // member functions
+    void use();
+    void setInt(const std::string &location, int value);
+    void setFloat(const std::string &location, float value);
+    void setBool(const std::string &location, int value);
+    void setMatrix(const std::string &location, glm::mat4 &mat);
 };
