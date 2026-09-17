@@ -21,3 +21,7 @@
 
 - [X] Fix the faulty shader class
 - [X] Integrate Error debugging
+
+## 17-9-26
+
+- [ ] Abstract VAO, VBO and EBO implmentation.
