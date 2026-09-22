@@ -27,6 +27,11 @@ add_executable(cubes
 	src/shader.cpp
 	src/error_reporting.h
 	src/error_reporting.cpp
+	src/VertexBuffer.h
+	src/VertexBuffer.cpp
+	src/buffer_layout.h
+	src/buffer_layout.cpp
+	src/VertexArray.h
 )
 
 target_link_libraries(cubes PRIVATE

@@ -6,8 +6,17 @@ class VertexBuffer {
     unsigned int m_id;
 
   public:
-    VertexBuffer() { glGenBuffers(1, &m_id); }
-    void upload(const float *vertices);
+    VertexBuffer()
+    {
+        glGenBuffers(1, &m_id);
+    }
+    VertexBuffer(float *vertices)
+    {
+        glGenBuffers(1, &m_id);
+        bind();
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                     GL_STATIC_DRAW);
+    }
     void bind();
     // Destructor
     ~VertexBuffer();

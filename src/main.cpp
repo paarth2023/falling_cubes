@@ -7,6 +7,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "shader.h"
+#include "VertexBuffer.h"
+#include "buffer_layout.h"
+#include "VertexArray.h"
 
 #define null NULL
 
@@ -112,14 +115,20 @@ int main()
     else if (nrChannels == 4)
         setting = rgba;
 
-    GLuint vbo, vao, ebo, texture1, texture2;
-    glGenBuffers(1, &vbo);
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &ebo);
+    VertexBuffer m_vbo(vertices);
+    BufferLayout layout;
+    layout.push<float>(3);
+    layout.push<float>(2);
+    VertexArray m_vao(std::move(m_vbo), std::move(layout));
+    // GLuint vbo, vao, ebo;
+    GLuint texture1, texture2;
+    // glGenBuffers(1, &vbo);
+    // glGenVertexArrays(1, &vao);
+    // glGenBuffers(1, &ebo);
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
 
-    glBindVertexArray(vao);
+    // glBindVertexArray(vao);
 
     glBindTexture(GL_TEXTURE_2D, texture1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -155,19 +164,20 @@ int main()
     }
     stbi_image_free(data);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+    // GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+    //              GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    //                       (void *)0);
+    // glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    //                       (void *)(3 * sizeof(float)));
+    // glEnableVertexAttribArray(1);
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -208,7 +218,8 @@ int main()
         shader.setMatrix("model", model);
         shader.setMatrix("view", view);
         shader.setMatrix("projection", projection);
-        glBindVertexArray(vao);
+        m_vao.bind();
+        // glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
