@@ -10,11 +10,11 @@ class VertexBuffer {
     {
         glGenBuffers(1, &m_id);
     }
-    VertexBuffer(float *vertices)
+    VertexBuffer(float *vertices, unsigned int vertexCount)
     {
         glGenBuffers(1, &m_id);
         bind();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+        glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(float), vertices,
                      GL_STATIC_DRAW);
     }
     void bind();

@@ -20,17 +20,17 @@ class VertexArray {
             if (this->layout.elements[i].type == Types::GL_FLOAT_USER) {
                 glVertexAttribPointer(
                     i, this->layout.elements[i].count, GL_FLOAT, GL_FALSE,
-                    this->layout.m_stride * sizeof(float),
+                    this->layout.m_stride,
                     (void *)(size_t)this->layout.elements[i].offset);
             } else if (this->layout.elements[i].type == Types::GL_CHAR) {
                 glVertexAttribPointer(
                     i, this->layout.elements[i].count, GL_BYTE, GL_FALSE,
-                    this->layout.m_stride * sizeof(char),
+                    this->layout.m_stride,
                     (void *)(size_t)this->layout.elements[i].offset);
             } else if (this->layout.elements[i].type == Types::GL_INT_USER) {
                 glVertexAttribPointer(
                     i, this->layout.elements[i].count, GL_BYTE, GL_FALSE,
-                    this->layout.m_stride * sizeof(char),
+                    this->layout.m_stride,
                     (void *)(size_t)this->layout.elements[i].offset);
             }
             glEnableVertexAttribArray(i);

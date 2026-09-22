@@ -24,4 +24,8 @@
 
 ## 17-9-26
 
-- [ ] Abstract VAO, VBO and EBO implmentation.
+- [X] Abstract VAO, VBO and EBO implmentation.
+
+## 22-9-26
+
+- [ ] Refine code for bufferlayout, vertexbuffer and indexbuffer (watch cherno's yt vid).

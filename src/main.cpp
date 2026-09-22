@@ -115,21 +115,15 @@ int main()
     else if (nrChannels == 4)
         setting = rgba;
 
-    VertexBuffer m_vbo(vertices);
+    unsigned int vertexDataSize = sizeof(vertices);
+    VertexBuffer m_vbo(vertices, vertexDataSize);
     BufferLayout layout;
     layout.push<float>(3);
     layout.push<float>(2);
     VertexArray m_vao(std::move(m_vbo), std::move(layout));
-    // GLuint vbo, vao, ebo;
     GLuint texture1, texture2;
-    // glGenBuffers(1, &vbo);
-    // glGenVertexArrays(1, &vao);
-    // glGenBuffers(1, &ebo);
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
-
-    // glBindVertexArray(vao);
-
     glBindTexture(GL_TEXTURE_2D, texture1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -163,21 +157,6 @@ int main()
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(data);
-
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-    // GL_STATIC_DRAW);
-
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-    //              GL_STATIC_DRAW);
-
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-    //                       (void *)0);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-    //                       (void *)(3 * sizeof(float)));
-    // glEnableVertexAttribArray(1);
 
     shader.use();
     shader.setInt("texture1", 0);
