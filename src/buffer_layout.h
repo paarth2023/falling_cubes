@@ -35,4 +35,9 @@ class BufferLayout {
         }
         m_stride += count * sizeof(T);
     }
+
+    std::vector<BufferElement> &getElements()
+    {
+        return elements;
+    }
 };
