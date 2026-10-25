@@ -25,5 +25,5 @@ class Shader {
     void setInt(const std::string &location, int value);
     void setFloat(const std::string &location, float value);
     void setBool(const std::string &location, int value);
-    void setMatrix(const std::string &location, glm::mat4 &mat);
+    void setMatrix(const std::string &location, const glm::mat4 &mat);
 };

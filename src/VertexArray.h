@@ -9,6 +9,7 @@ class VertexArray {
     BufferLayout layout;
 
   public:
+    VertexArray() : m_id(0) {}
     VertexArray(VertexBuffer vbo, BufferLayout layout)
     {
         this->vbo = std::move(vbo);
@@ -34,7 +35,38 @@ class VertexArray {
             glEnableVertexAttribArray(i);
         }
     }
-    void bind()
+
+    ~VertexArray()
+    {
+        if (m_id != 0) {
+            glDeleteVertexArrays(1, &m_id);
+        }
+    }
+
+    VertexArray(const VertexArray &) = delete;
+    VertexArray &operator=(const VertexArray &) = delete;
+
+    VertexArray(VertexArray &&other) noexcept
+        : m_id(other.m_id), vbo(std::move(other.vbo)), layout(std::move(other.layout))
+    {
+        other.m_id = 0;
+    }
+
+    VertexArray &operator=(VertexArray &&other) noexcept
+    {
+        if (this != &other) {
+            if (m_id != 0) {
+                glDeleteVertexArrays(1, &m_id);
+            }
+            m_id = other.m_id;
+            vbo = std::move(other.vbo);
+            layout = std::move(other.layout);
+            other.m_id = 0;
+        }
+        return *this;
+    }
+
+    void bind() const
     {
         glBindVertexArray(m_id);
     }

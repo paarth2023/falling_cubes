@@ -32,6 +32,10 @@ add_executable(cubes
 	src/buffer_layout.h
 	src/buffer_layout.cpp
 	src/VertexArray.h
+	src/Mesh.h
+	src/Mesh.cpp
+	src/Camera.h
+	src/Camera.cpp
 )
 
 target_link_libraries(cubes PRIVATE

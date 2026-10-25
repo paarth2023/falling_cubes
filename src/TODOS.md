@@ -14,8 +14,8 @@
 
 ## 12-9-26
 
-- [ ] Find a way for seemless transition in the animation
-- [ ] Create a render for this
+- [X] Find a way for seemless transition in the animation
+- [X] Create a render for this (Camera + Mesh + Multi-cube lanes)
 
 ## 13-9-26
 

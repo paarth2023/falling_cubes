@@ -83,7 +83,7 @@ void Shader::setBool(const std::string &location, int value)
     glUniform1f(glGetUniformLocation(m_id, location.c_str()), value);
 }
 
-void Shader::setMatrix(const std::string &location, glm::mat4 &mat)
+void Shader::setMatrix(const std::string &location, const glm::mat4 &mat)
 {
     glUniformMatrix4fv(glGetUniformLocation(m_id, location.c_str()), 1,
                        GL_FALSE, glm::value_ptr(mat));

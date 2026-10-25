@@ -6,11 +6,11 @@ class VertexBuffer {
     unsigned int m_id;
 
   public:
-    VertexBuffer()
+    VertexBuffer() : m_id(0)
     {
         glGenBuffers(1, &m_id);
     }
-    VertexBuffer(float *vertices, unsigned int vertexCount)
+    VertexBuffer(const float *vertices, unsigned int vertexCount) : m_id(0)
     {
         glGenBuffers(1, &m_id);
         bind();
