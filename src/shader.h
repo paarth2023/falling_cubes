@@ -7,8 +7,8 @@ class Shader {
     unsigned int m_id;
 
   public:
-    Shader(std::filesystem::path &vertexShader,
-           std::filesystem::path &fragmentShader);
+    Shader(const std::filesystem::path &vertexShader,
+           const std::filesystem::path &fragmentShader);
     // copy constructor
     Shader(Shader &) = delete;
     // move constructor

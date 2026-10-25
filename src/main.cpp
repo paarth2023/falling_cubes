@@ -66,12 +66,13 @@ int main()
         enableErrorReporting();
     }
 
-    std::filesystem::path vertexShader(
-        "/home/paarthmahadik/Documents/recreation/falling_cubes/resources/"
-        "vertexshader.glsl");
-    std::filesystem::path fragmentShader(
-        "/home/paarthmahadik/Documents/recreation/falling_cubes/resources/"
-        "fragmentshader.glsl");
+    std::string resPrefix = "resources/";
+    if (!std::filesystem::exists(resPrefix) && std::filesystem::exists("../resources/")) {
+        resPrefix = "../resources/";
+    }
+
+    std::filesystem::path vertexShader(resPrefix + "vertexshader.glsl");
+    std::filesystem::path fragmentShader(resPrefix + "fragmentshader.glsl");
     Shader shader(vertexShader, fragmentShader);
 
     float vertices[] = {
@@ -107,7 +108,7 @@ int main()
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
     unsigned char *data =
-        stbi_load("resources/container.jpg", &width, &height, &nrChannels, 0);
+        stbi_load((resPrefix + "container.jpg").c_str(), &width, &height, &nrChannels, 0);
     std::cout << nrChannels << std::endl;
     format setting;
     if (nrChannels == 3)
@@ -140,7 +141,7 @@ int main()
     stbi_image_free(data);
 
     data =
-        stbi_load("resources/awesomeface.png", &width, &height, &nrChannels, 0);
+        stbi_load((resPrefix + "awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
     if (nrChannels == 4)
         setting = rgba;
     else if (nrChannels == 3)

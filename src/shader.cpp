@@ -1,5 +1,6 @@
 #include "shader.h"
 #include <fstream>
+#include <sstream>
 #include <iostream>
 
 #include <glad/glad.h>
@@ -7,42 +8,57 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Shader::Shader(std::filesystem::path &vertexShader,
-               std::filesystem::path &fragmentShader)
+static std::string readFile(const std::filesystem::path &path)
 {
-    std::cout << vertexShader.string();
-    std::ifstream vertexFile(vertexShader.string());
-    vertexFile.seekg(0, vertexFile.end);
-    int vertexSize = vertexFile.tellg();
-    vertexFile.seekg(0, vertexFile.beg);
-    char *vertexShaderSource = new char[vertexSize + 1];
-    vertexFile.read(vertexShaderSource, vertexSize);
-    vertexShaderSource[vertexSize] = 0;
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open shader file: " << path << std::endl;
+        return "";
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
-    std::ifstream fragmentFile(fragmentShader.string());
-    fragmentFile.seekg(0, fragmentFile.end);
-    int fragmentSize = fragmentFile.tellg();
-    fragmentFile.seekg(0, fragmentFile.beg);
-    char *fragmentShaderSource = new char[fragmentSize + 1];
-    fragmentFile.read(fragmentShaderSource, fragmentSize);
-    fragmentShaderSource[fragmentSize] = 0;
+Shader::Shader(const std::filesystem::path &vertexShader,
+               const std::filesystem::path &fragmentShader)
+{
+    std::string vertexCode = readFile(vertexShader);
+    std::string fragmentCode = readFile(fragmentShader);
 
-    unsigned int vertex;
-    vertex = glCreateShader(GL_VERTEX_SHADER);
+    const char *vertexShaderSource = vertexCode.c_str();
+    const char *fragmentShaderSource = fragmentCode.c_str();
+
+    int success;
+    char infoLog[512];
+
+    unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertexShaderSource, NULL);
     glCompileShader(vertex);
-    delete[] vertexShaderSource;
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(vertex, sizeof(infoLog), NULL, infoLog);
+        std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
-    unsigned int fragment;
-    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragment);
-    delete[] fragmentShaderSource;
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragment, sizeof(infoLog), NULL, infoLog);
+        std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
     m_id = glCreateProgram();
     glAttachShader(m_id, vertex);
     glAttachShader(m_id, fragment);
     glLinkProgram(m_id);
+    glGetProgramiv(m_id, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(m_id, sizeof(infoLog), NULL, infoLog);
+        std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+    }
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
